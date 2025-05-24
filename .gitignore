@@ -45,9 +45,14 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE specific files
+# IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Project specific
+data/
+*.csv
+*.json
 

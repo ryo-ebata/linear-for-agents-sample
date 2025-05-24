@@ -1,9 +1,13 @@
 # Core dependencies
 requests==2.31.0
 python-dotenv==1.0.0
+pandas==2.0.3
+beautifulsoup4==4.12.2
+lxml==4.9.3
+tqdm==4.66.1
+aiohttp==3.8.5
 
 # Development dependencies
 pytest==7.4.0
 black==23.7.0
 flake8==6.1.0
-
