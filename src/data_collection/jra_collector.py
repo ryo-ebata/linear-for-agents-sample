@@ -10,7 +10,7 @@ import logging
 from datetime import datetime, timedelta
 import time
 import random
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any, Tuple, Dict[str, Dict[int, pd.DataFrame]]
 
 import requests
 from bs4 import BeautifulSoup
@@ -56,7 +56,12 @@ class JRADataCollector:
         self.start_year = start_year
         self.end_year = end_year or CURRENT_YEAR
         self.session = requests.Session()
-        self.data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+        
+        # Use configuration values for data directory
+        self.data_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 
+            self.config["jra_data_dir"]
+        )
         
         # Create data directory if it doesn't exist
         os.makedirs(self.data_dir, exist_ok=True)
@@ -66,6 +71,10 @@ class JRADataCollector:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
         })
+        
+        # Get request delay from config
+        self.request_delay = self.config["jra_request_delay"]
+        self.random_delay_range = (0.5, 1.5)  # random delay range multiplier
         
         logger.info(f"Initialized JRA data collector for years {self.start_year} to {self.end_year}")
     
@@ -81,7 +90,7 @@ class JRADataCollector:
             Response object
         """
         # Add random delay to avoid being blocked
-        time.sleep(REQUEST_DELAY * random.uniform(*RANDOM_DELAY_RANGE))
+        time.sleep(self.request_delay * random.uniform(*self.random_delay_range))
         
         try:
             response = self.session.get(url, params=params)
@@ -104,9 +113,9 @@ class JRADataCollector:
         """
         logger.info(f"Collecting race calendar for year {year}")
         
-        # This is a placeholder for the actual implementation
-        # In a real implementation, you would make requests to the JRA website or API
-        # to collect the race calendar data
+        # TODO: Implement actual data collection from JRA website or API
+        # This is a placeholder implementation that needs to be replaced with
+        # actual API calls or web scraping logic to fetch real race calendar data
         
         # Placeholder data
         data = {
@@ -119,7 +128,7 @@ class JRADataCollector:
             "track_type": [],
         }
         
-        # In a real implementation, you would parse the response and extract the data
+        # TODO: Parse the response and extract the data from JRA source
         
         # Create DataFrame
         df = pd.DataFrame(data)
@@ -144,9 +153,9 @@ class JRADataCollector:
         """
         logger.info(f"Collecting race results for year {year}")
         
-        # This is a placeholder for the actual implementation
-        # In a real implementation, you would make requests to the JRA website or API
-        # to collect the race results data
+        # TODO: Implement actual data collection from JRA website or API
+        # This is a placeholder implementation that needs to be replaced with
+        # actual API calls or web scraping logic to fetch real race results data
         
         # Placeholder data
         data = {
@@ -163,7 +172,7 @@ class JRADataCollector:
             "weight": [],
         }
         
-        # In a real implementation, you would parse the response and extract the data
+        # TODO: Parse the response and extract the data from JRA source
         
         # Create DataFrame
         df = pd.DataFrame(data)
@@ -188,9 +197,9 @@ class JRADataCollector:
         """
         logger.info(f"Collecting horse data for year {year}")
         
-        # This is a placeholder for the actual implementation
-        # In a real implementation, you would make requests to the JRA website or API
-        # to collect the horse data
+        # TODO: Implement actual data collection from JRA website or API
+        # This is a placeholder implementation that needs to be replaced with
+        # actual API calls or web scraping logic to fetch real horse data
         
         # Placeholder data
         data = {
@@ -206,7 +215,7 @@ class JRADataCollector:
             "stable": [],
         }
         
-        # In a real implementation, you would parse the response and extract the data
+        # TODO: Parse the response and extract the data from JRA source
         
         # Create DataFrame
         df = pd.DataFrame(data)
@@ -231,9 +240,9 @@ class JRADataCollector:
         """
         logger.info(f"Collecting track condition data for year {year}")
         
-        # This is a placeholder for the actual implementation
-        # In a real implementation, you would make requests to the JRA website or API
-        # to collect the track condition data
+        # TODO: Implement actual data collection from JRA website or API
+        # This is a placeholder implementation that needs to be replaced with
+        # actual API calls or web scraping logic to fetch real track condition data
         
         # Placeholder data
         data = {
@@ -247,7 +256,7 @@ class JRADataCollector:
             "rainfall": [],
         }
         
-        # In a real implementation, you would parse the response and extract the data
+        # TODO: Parse the response and extract the data from JRA source
         
         # Create DataFrame
         df = pd.DataFrame(data)
@@ -268,7 +277,7 @@ class JRADataCollector:
                         Options: "race_calendar", "race_results", "horse_data", "track_condition"
         
         Returns:
-            Dictionary containing all collected data
+            Dictionary containing all collected data, organized by data type and year
         """
         if data_types is None:
             data_types = ["race_calendar", "race_results", "horse_data", "track_condition"]
@@ -319,25 +328,3 @@ class JRADataCollector:
             json.dump(data_summary, f, indent=2)
         
         logger.info(f"Saved data summary to {output_path}")
-
-
-def main():
-    """
-    Main function to run the JRA data collector.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Collect JRA horse racing data")
-    parser.add_argument("--start-year", type=int, default=DATA_START_YEAR, help="Starting year for data collection")
-    parser.add_argument("--end-year", type=int, default=CURRENT_YEAR, help="Ending year for data collection")
-    parser.add_argument("--data-types", nargs="+", default=None, help="Data types to collect")
-    args = parser.parse_args()
-    
-    collector = JRADataCollector(start_year=args.start_year, end_year=args.end_year)
-    collector.collect_all_data(data_types=args.data_types)
-    collector.export_data_summary()
-
-
-if __name__ == "__main__":
-    main()
-
